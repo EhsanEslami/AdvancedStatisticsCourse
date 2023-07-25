@@ -1,0 +1,12 @@
+model {
+  # Priors
+  p_vaccine ~ dbeta(1, 1)
+  p_placebo ~ dbeta(1, 1)
+
+  # Likelihood
+  vaccine_cases ~ dbin(p_vaccine, vaccine_population)
+  placebo_cases ~ dbin(p_placebo, placebo_population)
+
+  # Derived quantities
+  efficacy <- (p_placebo - p_vaccine) / p_placebo * 100
+}

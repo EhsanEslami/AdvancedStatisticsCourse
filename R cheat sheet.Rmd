@@ -1,0 +1,959 @@
+---
+title: "R Exam"
+author: "Ehsan Eslmai Shafigh"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+example(sqrt)
+```
+
+```{r}
+
+?plot
+```
+
+```{r}
+
+objects()
+```
+
+```{r}
+
+search()
+```
+
+```{r}
+
+str(mean)
+```
+
+```{r}
+
+str(sqrt)
+```
+
+```{r}
+
+119%/%12
+```
+
+```{r}
+
+119%%12
+```
+
+```{r}
+
+x = c(1 , 2 , 3)
+y = c(2 , 3 )
+
+x * y
+```
+
+```{r}
+
+seq(1 , 7 , 2)
+```
+
+**We want to remove the smallest and largest values of a vector**
+
+```{r}
+v = c(10,13,5,3,7,1)
+
+v = sort(v)
+v = v[-1]
+v = v[-length(v)]
+
+v
+```
+
+```{r}
+
+x = 1:10
+
+sum(x < 5)
+```
+
+```{r}
+
+sum(x[x<5])
+```
+
+```{r}
+
+rep(3,5)
+```
+
+```{r}
+
+rep(1:4 , 2)
+```
+
+```{r}
+
+rep(1:4 , each = 2)
+```
+
+```{r}
+
+rep(1:4 , each = 2 , times = 3)
+```
+
+```{r}
+rep(1:4 , 1:4)
+```
+
+```{r}
+
+s = 1:3
+  
+class(s)
+typeof(s)
+```
+
+```{r}
+
+c = c(1 , 5 , 10)
+
+class(c)
+typeof(c)
+```
+
+**We want to get the all odd , positive numbers between -5 and 5**
+
+```{r}
+
+ns = -5:5
+
+ns.positive.index = ns > 0
+ns.odd.index = ns %% 2 == 1
+
+ns[ns.positive.index & ns.odd.index]
+```
+
+**The way to remove NA values**
+
+```{r}
+
+y = c(5 , NA , 3)
+
+is.na(y)
+
+y[! is.na(y)]
+```
+
+```{r}
+
+gender = c("male" , "female", "female", "female","male" , "female")
+gen_factor = factor(gender)
+
+str(gen_factor)
+```
+
+### **Naming**
+
+```{r}
+counts = c(21 , 10 , 3 , 45 , 4 , 6 , 8)
+names(counts) = c(1:length(counts))
+
+hist(counts , col = "yellow" , freq = F , main = paste("Histogram of" , "counts" , xlab = "counts" , ylab = "prob. density"))
+barplot(counts)
+```
+
+```{r}
+
+?hist()
+```
+
+```{r}
+
+?barplot()
+```
+
+```{r}
+
+v1 = c(1:20)
+dim(v1) = c(5 , 4)
+
+class(v1)
+str(v1)
+v1
+
+v1 = c(1:20)
+dim(v1) = c(5 , 2 , 2)
+class(v1)
+str(v1)
+v1
+```
+
+```{r}
+
+m1 = matrix(1:12 , nrow = 3 , byrow = T)
+m1
+m1[3 , ]
+```
+
+```{r}
+
+A = matrix(c(1 , -2 , 4 , 3) , nrow = 2)
+b = c(12 , 4)
+
+x = solve(A , b)
+
+x
+
+A%*%x
+```
+
+```{r}
+
+ar = array(1:24 , dim = c(3 , 2 , 4) )
+
+ar
+ar[, , 3]
+
+?array
+```
+
+```{r}
+
+u = sqrt(2)
+
+identical(u*u , 2)
+all.equal(u*u , 2)
+```
+
+**We want to write a code which compares two numbers and tell us which one is bigger than the other**
+
+```{r}
+
+x = 10
+y = 15
+
+#first method:
+
+if (x>y) {
+  cat("x is bigger\n")
+}else if (y>x) {
+  cat("y is bigger\n")
+  }else {
+    cat("x and y are equal")
+  }
+
+
+```
+
+```{r}
+
+# second method
+
+sign = sign(x - y)
+
+msg = switch(as.character(sign) , "1" = "x is bigger" , "-1" = "y is bigger" , "0" = "x and y are equal")
+
+msg
+```
+
+**Print the index number along with the values of a vector**
+
+```{r}
+
+v = c("a" , "b" , "c")
+
+for (i in seq_along(v)) cat(i , v[i] , "\n")
+```
+
+**Write a function that returns the factorial of a given number**
+
+```{r}
+
+facto = function (n) {
+  
+  m = n
+  tmp = n
+  
+  while (m > 1) {
+    
+    m = m - 1
+    tmp = m * tmp
+  }
+  
+  return (tmp)
+}
+
+
+facto(3)
+cumprod(1:3)[length(1:3)]
+factorial(3)
+```
+
+**Draw 5 random numbers from poisson dist. and take the log, then replace the infinit results with nan**
+
+```{r}
+
+y = log(rpois(5 , 1.5))
+
+y
+
+y = ifelse(y<0 , NA , y)
+
+y
+```
+
+**Unlike python list which are mutable, R vectors are immutable, meaning that if we assign two variables to the same reference, if we try to change one of the variables, the other won't be changed.**
+
+```{r}
+x = c(1 , 5 ,7)
+y = x
+
+y
+```
+
+![](images/Untitled.png){width="626"}
+
+```{r}
+
+x[1] = 2
+
+y
+```
+
+### **Lists:**
+
+```{r}
+
+
+l1 = list(c(1 , 3 ,5) , c(T , F , T) , "list is a good thing")
+
+str(l1)
+```
+
+**Extracting from lists**
+
+```{r}
+l1[1]
+
+l1[[1]]
+
+# if you put one bracket you get another list, if you put two brackets you get the content of that list
+
+l1[[1]][2]
+```
+
+![](images/Untitled1.png){width="371"}
+
+![](images/Untitled2.png){width="312"}
+
+![](images/Untitled3.png){width="376"}
+
+**We can also give index to the items within a list**
+
+```{r}
+l2 = list(num = c(1,2,3) , text = "R is bullshit")
+
+str(l2)
+
+l2$text
+```
+
+```{r}
+
+l3 = l2
+
+l2[1] = list(3:1)
+
+l2
+l3
+```
+
+### **Data frames**
+
+**are built on top of lists. They they are lists which have fixed lengths.**
+
+```{r}
+
+letter = letters[1:5]
+numbers = 1:5
+
+df1 = data.frame(letter , numbers)
+
+str(df1)
+```
+
+### Accessing
+
+```{r}
+
+df1[[1]]
+df1$letter
+
+# dataframes can be also accessed the matrix way
+
+df[1,2]
+```
+
+**Write a code which selects 2 rows randomly from df1**
+
+```{r}
+
+df1[sample(1:5 , 2) ,]
+```
+
+**Select only the columns which are numeric**
+
+```{r}
+
+filter = sapply(df1 , is.numeric)
+
+df1[,filter]
+```
+
+**Drop the last two rows from df1**
+
+```{r}
+
+df2 = df1
+
+len = length(df1[[1]])
+
+df2 = df1[-((len-1) : len),]
+
+df1
+df2
+```
+
+### **Subsetting**
+
+**select every other row in df1**
+
+```{r}
+
+filter = c(T , F)
+
+df1[filter , ]
+```
+
+**Zero!**
+
+```{r}
+
+x = c(1 , 2 , 3)
+
+x[0]
+```
+
+**Named vectors can be also accessed with thier names**
+
+```{r}
+
+x = setNames(x , letters[1:3])
+
+x["a"]
+```
+
+### **Anonymous functions in R:**
+
+**we write a function which itself returns a function:**
+
+```{r}
+
+power = function(exp) function(x) x^exp
+
+power(2)(2)
+```
+
+### Bionomial Dist.
+
+**in a restaurant 8 entrees of fish, 12 of beef and 10 of poultry are served, what is the probability that 2 of the 4 next customers order fish entrees ?**
+
+```{r}
+
+p = 8/(8 + 12 + 10) #the prob. of success
+s = 0:4 # number of success
+n = 4 # number of total trials
+
+ap = dbinom(s , n , p )
+
+barplot(ap , names = s , xlab = 'x' , ylab = 'f(x)' , main = "binomial dist." , col = "yellow")
+```
+
+### **Geometric Dist.**
+
+**in r the number of failures before the first success are given as input**
+
+```{r}
+
+y = 0:10
+p =1/8 
+
+ap = dgeom(y , p)
+
+barplot(ap , names = 1:11 , col = 'blue')
+```
+
+### Poisson Dist.
+
+**the average number of received wrong phone calls per week is 7, what is the probability to get, tomorrow, A) two wrong calls ? B) at least one wrong call ?**
+
+**we can assume that the expected value for one day is 7/7 = 1**
+
+```{r}
+
+lambda = 1
+k = 0:10
+
+ap = setNames(dpois(k , lambda) , 0:10) 
+
+barplot(ap , names = k , col = 'red')
+
+cat('the probability to get two wrong calls is:' , ap["2"])
+cat('the probability to get at least wrong calls is:' , sum(ap[2:10]))
+```
+
+### Pascal Dist.
+
+**the prob. of rth success occuring after n tirals.**
+
+**for R function we feed in the number of failures that occur till r success is reached: n-r**
+
+**Ann and Maggie are playing cards until one of them wins 5 games, suppose all games are independent and the probability that Ann wins is 58%**
+
+-   **A) what is the probability that they complete in 7 games**
+
+-   **B) if the series ends in 7 games, what is the probability that Ann wins ?**
+
+```{r}
+#A)
+
+p_ann = dnbinom(2 , 5 , 0.58)
+p_magg = dnbinom(2 , 5 , 0.42)
+
+cat('the prob. of game completion in 7 games is:' , p_ann + p_magg)
+
+#B) 
+
+cat('the prob. that Ann wins provided that the seies end in 7 games is:', p_ann/(p_ann + p_magg))
+```
+
+#### Defective Screws
+
+**A company produces screws, the probability of a screw to be defective is p = 0.015. a box with n = 100 screws is packaged. Compute:**
+
+1.  **the probability that all screws are non defective**
+
+2.  **the defective screws distribution comparing the Binomial and Poisson distributions**
+
+3.  **how many extra screws should the box contain in order to have n = 100 no defective screws with probability greater than 80%**
+
+```{r}
+
+# 1
+
+# the probability of defective screws follows a Bionomial distribution. The prob. of no defective screws means setting r = 0:
+
+cat("the prob. of no defective screws is:" , dbinom(0 , 100 , 0.015))
+
+```
+
+```{r}
+
+# 2
+
+k = 0:10
+
+p.binom = dbinom(k , 100 , 0.015)
+
+lambda = 100 * 0.015
+
+p.pois = dpois(k ,lambda)
+
+
+
+```
+
+```{r}
+
+install.packages('ggplot2')
+library(ggplot2)
+
+```
+
+```{r}
+
+# to plot the two distributions we use the ggplot2 library
+
+data = data.frame(k , p.binom , p.pois)
+
+plot = ggplot(data, aes(x = k))
+
+plot + geom_bar(aes(y = p.binom) , stat = 'identity' , fill = 'red'  , alpha = 0.5)+ geom_line(aes(y = p.pois) , color = "blue") + labs(title = "Binomial vs Poisson Dist." , x = '# of defective screws' , y = 'Density')
+```
+
+```{r}
+
+# let's plot the  binomial cumulative density of k = 100 and n > 100 for p = 1 -  0.015
+
+n = 100:110
+k = 100
+
+p.xtra = 1 - pbinom(k , n , 1 - 0.015)
+
+data = data.frame(n , p.xtra)
+
+plot = ggplot(data , aes(x = n))
+
+plot + geom_bar(aes(y = p.xtra) , stat = 'identity' , fill = 'yellow') + labs(title = 'the probability of at least 100 non-defective screws whithin n screws' , x = '# of total screws' , y = 'density') + geom_hline(yintercept = 0.8 , linetype = 'dashed' , color = 'red')
+```
+
+### Waiting Time: The exponential dist.
+
+**Suppose that every three months, an earthquake of some entity happens in Italy, what is the probability that the next earthquake happens after three but before seven months ?**
+
+```{r}
+
+# first let's plot the waiting time for the next earthquake
+
+t = 1:10
+lambda = 1/3
+
+p.exp = dexp(t , 1/3)
+
+data = data.frame(t , p.exp)
+
+plot = ggplot(data , aes(x = t))
+
+plot + geom_bar(aes(y = p.exp) , stat = 'identity' , fill = 'blue') + labs(title = 'the waiting time for the next earthquake' , x = 'months' , y = 'density') + geom_vline(xintercept = c(3 , 7) , linetype = 'dashed' , color = 'green')
+```
+
+```{r}
+
+# next we can evaluate the cumulative density 
+
+cat('the probability that the next earthquake happens between next 3 and 7 month is:' , pexp(7 , 1/3) - pexp(3 , 1/3))
+```
+
+### Life Time
+
+**The lifetime of an electronic component, in years, is a random variable with mean 10 years, I bought the component 5 years ago. What is the probability that it will last for another 10 years ?**
+
+```{r}
+
+# The failure of the device is a poisson process with expected number of occurence of 1 in 10 years. in other words lambda is 0.1 for T = 1 year. We want to compute the probability of a waiting time of at least 10 years provided that the device has not failed after 5 years. But we know that the poisson process is memory-less therefore the waiting time does not depend on the previously elapsed time without failure. 
+
+p.wait = 1 - pexp(10 , 0.1)
+
+p.wait
+```
+
+### Sampling Methods
+
+**Use three methods: built-in, inverse transform and R sample functions for each of following distributions:**
+
+1.  **uniform from a to b**
+
+2.  **f(x) = 2x**
+
+3.  **exp(**$\lambda$**)**
+
+4.  **triangular: for 0\<x\<0.5: 4x , for 0.5\<x\<1: 4 - 4x and otherwise 0**
+
+**For each of these functions plot the histogram of samples against the function itself**
+
+```{r}
+
+# 1 using runif() 
+
+uniform_ab <- function(x, a, b) {
+  ifelse(x > a & x < b, 1/(b - a), 0)
+}
+
+
+x_domain <- seq(from = 0, to = 10, by = 0.1)
+f_x <- sapply(x_domain, uniform_ab, a = 2, b = 4)
+
+samples <- runif(10000, 2, 4)
+
+data1 <- data.frame(x_domain, f_x)
+data2 <- data.frame(samples)
+
+plot <- ggplot() +
+  geom_line(data = data1 , aes( y = f_x , x = x_domain), color = 'red') +
+  geom_histogram(data = data2, aes(x = samples , y = ..density..), binwidth = 0.1, color = 'blue' , fill = 'blue')  + labs(title = 'Histogram of Samples vs Given Distribution',
+       x = 'x',
+       y = 'Density') 
+
+
+print(plot)
+```
+
+```{r}
+
+# 1 using ITM
+
+UNIFORM_AB <- function(u, a, b) {
+  ifelse(u > 0 & u < 1, a + u * (b - a), ifelse(u < a, 0, 1))
+}
+
+u = runif(10000)
+samples3 = sapply(u , UNIFORM_AB , 2 , 4)
+
+data3 = data.frame(samples3)
+
+plot = ggplot() + geom_line( data = data1 , aes(x = x_domain , y = f_x) , color = 'red', size = 1.5) + geom_histogram( data = data3 , aes(x = samples3 , y = ..density..) , color = 'black' , fill = 'black' , binwidth = 0.1 , alpha = 0.5) + labs(title = 'Histogram of Samples by ITM vs The Given PDF' , x = 'x', y = 'density')
+
+print(plot)
+
+```
+
+```{r}
+
+# 1 using sample function
+
+samples4 = sample(x_domain , size = 10000 , replace = T , prob = uniform_ab(x_domain, 2 , 4))
+
+data4 = data.frame(samples4)
+
+plot = ggplot() + geom_line(data = data1 , aes(x = x_domain , y = f_x) , color = 'red', size = 1.5) + geom_histogram(data = data4 , aes(x = samples4 , y = ..density..) , color  = 'green' , alpha = 0.5 , binwidth = 0.1) + labs(title = "Histogram of samples using sample() vs the given pdf" , x = 'x' , y = 'density')
+
+
+
+print(plot)
+```
+
+```{r}
+
+# 2 using ITM
+
+customf = function(x) 2*x
+
+CUSTOMF = function(u) u^0.5
+
+x_domain = seq(from = 0 , to = 1 , by = 0.1)
+u = runif(10000 , 0 , 1)
+
+data1 = data.frame(x_domain , y = sapply(x_domain , customf))
+
+data2 = data.frame(x = sapply(u , CUSTOMF))
+
+
+plot = ggplot() + geom_line(data = data1 , aes(x = x_domain , y = y ) , color = 'red' ,size = 1.5 ) + geom_histogram(data = data2 , aes(x = x , y = ..density..) , col = 'violet' , fill = 'violet' , alpha = 0.5)+ labs(title = 'ITM samples vs PDF' , x = 'x' , y = 'density')
+
+print(plot)
+```
+
+```{r}
+
+# 2 using sample
+
+data3 = data.frame(x= sample(x_domain , size = 10000 , replace = T , prob = customf(x_domain)))
+
+plot = ggplot() + geom_line(data = data1 , aes(x = x_domain , y = y ) , color = 'red' ,size = 1.5 ) + geom_histogram(data = data3 , aes(x = x , y = ..density..) , col = 'violet' , fill = 'cyan' , alpha = 0.5 , binwidth = 0.1)+ labs(title = 'R samples vs PDF' , x = 'x' , y = 'density')
+
+print(plot)
+
+
+```
+
+```{r}
+
+#3 using rexp
+
+expo = function(x , lambda) lambda * exp(x * -lambda)
+samples1 = rexp(100000 , rate = 2)
+
+x_domain = seq(from = 0 , to = 10 , by = 0.1)
+
+data1 = data.frame( x_domain , y = sapply(x_domain , expo , lambda = 2))
+data2 = data.frame(x = samples1) 
+
+plot = ggplot() + geom_line(data = data1 , aes(x = x_domain , y = y) , color = 'red' , size = 1.5) + geom_histogram(data = data2 , aes(x = x , y = ..density..) ,  , color = 'pink' , binwidth = 0.1) + labs(title = 'rexp() Samples vs PDF' , x = 'x' , y = 'density') 
+
+print(plot)
+```
+
+```{r}
+
+#3 using ITM
+
+EXPO = function(u , lambda) -1/lambda * log(1 - u)
+
+u = runif(10000)
+
+sample3 = sapply(u , EXPO , lambda = 2)
+
+data3 = data.frame(x = sample3)
+
+plot = ggplot() + geom_line(data = data1 , aes(x = x_domain , y = y) , color = 'red' , size = 1.5) + geom_histogram(data = data3 , aes(x = x , y = ..density..) ,  , color = 'yellow' , binwidth = 0.1 , fill = 'yellow' , alpha = 0.5) + labs(title = 'rexp() Samples vs PDF' , x = 'x' , y = 'density' )
+
+print(plot)
+```
+
+### Integrating a pdf with R
+
+Let's evaluate the mean and variance of a poisson distribution with lambda = 2 , using integrate function:
+
+```{r}
+
+poiss.moment1 = integrate(function(k , lambda = 2) {lambda ^k * exp(-lambda)/factorial(k) * k} , lower = 0 , upper = 100)$value
+poiss.moment2 = integrate(function(k , lambda = 2) {lambda ^k * exp(-lambda)/factorial(k) * k^2} , lower = 0 , upper = 100)$value
+
+cat('the mean of the poisson dist is:' , poiss.moment1)
+cat('the variance of the poisson dist is:' , poiss.moment2 - poiss.moment1^2)
+
+```
+
+We can also find the mean and variance using the rpois() function
+
+```{r}
+
+samples = rpois(10000 , 2)
+
+mean = mean(samples)
+variance = var(samples)
+
+cat('the mean of the poisson dist is:' , mean)
+cat('the variance of the poisson dist is:' , variance)
+```
+
+### Hypothesis Test: Binomial Dist.
+
+**A study on water quality of streams, a high level of bacter X was defined as a level greater than 100 per 100 ml of stream water. n = 116 samples were taken from streams having a high environmental impact on pandas. Out of these, y = 11 had a high bacter X level.**
+
+1.  **find the frequentist estimator for p**
+
+```{r}
+
+# frequentist estimator is simply the ratio of y to n
+
+y = 11
+n = 116
+
+p.f = y/n
+
+cat('the frequentist estimator for p is equal to:' , p.f)
+```
+
+2.  **using a Beta(1; 10) prior for p, calculate and posterior distribution P(p\|y)**
+
+    ```{r}
+
+    p.list = seq(from = 0 , to = 1 , by = 0.001)
+    alpha.p = 1
+    beta.p = 10
+    alpha = y
+    beta = n - y
+
+    post.p = dbeta(p.list , alpha + alpha.p , beta + beta.p)
+
+    data1 = data.frame(x = p.list , y = post.p)
+
+    plot = ggplot() + geom_line(data = data1 , aes(x = x , y = y) , color = 'blue')+ labs(title = 'Posterior PDF', x = 'p' , y = 'Density')
+
+    print(plot)
+    ```
+
+    3.  **finnd the bayesian estimator for p, the posterior mean and variance, and a 95% credible interval**
+
+```{r}
+
+post.samples = sample(p.list , 1000000, replace=T , prob = post.p)
+
+post.mean = mean(post.samples)
+post.var = var(post.samples)
+
+ci.95 = qbeta(c(0.025, 0.975), alpha + alpha.p , beta + beta.p)
+
+plot = ggplot() + geom_line(data = data1 , aes(x = x , y = y) , color = 'blue')+ geom_vline(xintercept = ci.95, linetype = 'dashed', color = 'red')+ geom_vline(xintercept = post.mean, linetype = 'dashed' , color = 'orange') + labs(title = 'Posterior PDF', x = 'p' , y = 'Density') 
+
+print(plot)
+```
+
+4.  **test the hypothesis H0 : p = 0.1 versus H1 : p != 0.1**
+
+    **at 5% level of significanse with both the frequentist and bayesian approach**
+
+```{r}
+
+# starting with the Bayesian approach we just need to see where p = 0.1 is:
+
+cat('the 95% credibility interval for the posterior is from' , ci.95[1] , 'to' , ci.95[2], 'so the null hypothesis is not rejected')
+```
+
+```{r}
+
+
+ci.norm95 = qnorm(c(0.025, 0.975) , post.mean , sqrt(post.var) )
+
+ci.norm95 
+```
+
+```{r}
+
+# for the frequentist approach we simply need to assume p = 0.1 and find the corresponding binomial distribution. if the area under the curve, for the ranges: (y,n) and (0 , n - y) is less than 0.05 then we have a significant result and H0 is rejected 
+
+y.list = 0:n
+
+binom.y = pbinom(y, n , 0.1) + pbinom(n - y , n , 0.1, lower.tail = F) 
+
+cat('The p-value is:' , binom.y , 'So that H0 is not rejected')
+```
+
+```{r}
+
+binom.test(11 , 116 , 0.1)
+```
+
+5.  **find the frequentist estimator for p**
+
+```{r}
+
+y.new = 9
+n.new = 116
+p.f.new = y.new/n.new
+
+cat('the frequentist estimator for p new is:', p.f.new)
+```
+
+```{r}
+
+alpha.new = y.new
+beta.new = n.new - y.new
+
+post.p.new = dbeta(p.list , alpha.new  , beta.new) * post.p
+
+post.p.new = post.p.new  / sum(0.001 * post.p.new)
+
+
+data2 = data.frame(x = p.list , y = post.p.new)
+
+plot = ggplot() + geom_line(data = data2 , aes(x = x , y = y), color = 'blue') + labs(title = 'Posterior for the new method' , x = 'x' , y = 'density')
+
+print(plot)
+```
+
+```{r}
+
+samples = sample(p.list , 10000 , replace = T , post.p.new )
+
+post.mean.new = mean(samples)
+post.var.new = var(samples)
+
+ci.95.new = quantile(samples , c(0.025 , 0.975) )
+
+
+plot = ggplot() +  
+```
+
+```{r}
+
+?quantile(samples , )
+```
