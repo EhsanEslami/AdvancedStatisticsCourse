@@ -1,0 +1,7 @@
+model {
+  # Prior distribution for p
+  p ~ dbeta(1, 10)
+  
+  # Likelihood
+  y ~ dbin(p, n)
+}

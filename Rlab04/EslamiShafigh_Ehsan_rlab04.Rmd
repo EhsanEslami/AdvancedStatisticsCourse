@@ -1,0 +1,445 @@
+---
+title: "EslamiShafigh_Ehsan_rlab04"
+author: "Ehsan Eslmai Shafigh"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+---s
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment 4
+
+### Exercise 1:
+
+#### a)
+
+We start with a uniform prior.
+
+```{r}
+
+n.sample = 1000
+delta.mu = 1/n.sample
+mu = seq(from = 0 , by = delta.mu , length.out = n.sample * 10)
+```
+
+```{r}
+
+alpha = 61 + 1
+lambda = 10
+
+
+post.mu = dgamma(mu , alpha, lambda )
+
+delta.mu * sum(post.mu)
+```
+
+```{r}
+
+mean = delta.mu * sum(mu * post.mu)
+var = delta.mu * sum(mu^2 * post.mu) - mean^2
+median = qgamma(0.5 , alpha, lambda )
+
+print(mean)
+print(var)
+print(median)
+```
+
+```{r}
+ci = qgamma(c(0.025 , 0.975) , alpha, lambda )
+
+plot(mu , post.mu , type = 'l' , lwd = 1.5 , col = 'blue')
+
+abline(v = ci[1], lty = "dashed", col = "red")
+abline(v = ci[2], lty = "dashed", col = "red")
+```
+
+#### b)
+
+We repeat the same procedure for a Jeffery's prior.
+
+```{r}
+
+alpha = 61 + 0.5
+lambda = 10
+
+
+post.mu = dgamma(mu , alpha, lambda )
+```
+
+```{r}
+
+mean = delta.mu * sum(mu * post.mu)
+var = delta.mu * sum(mu^2 * post.mu) - mean^2
+median = qgamma(0.5 , alpha, lambda )
+
+print(mean)
+print(var)
+print(median)
+```
+
+```{r}
+
+ci = qgamma(c(0.025 , 0.975) , alpha, lambda )
+
+plot(mu , post.mu , type = 'l' , lwd = 1.5 , col = 'blue')
+
+abline(v = ci[1], lty = "dashed", col = "red")
+abline(v = ci[2], lty = "dashed", col = "red")
+
+```
+
+#### c)
+
+Using the variance and mean we can find the credibility limits according to the normal distribution:
+
+```{r}
+
+sigma = sqrt(var)
+
+print(c(mean - 2 * sigma , mean + 2 *  sigma))
+ci
+```
+
+### Exercise 2:
+
+#### a)
+
+We can assume a binomial model for this problem. Since there is a fixed number of trials (n) and there is a binary outcome: detecting the patient or not detecting it. The probability of not detecting the patient can be taken p = 0.15.
+
+```{r}
+
+n = 75  
+p = 0.15  
+
+y = 0:n  
+
+prob = dbinom(y, size = n, prob = p)  # Probability distribution
+
+plot(y , prob , col = 'blue'  , lwd = '1')
+```
+
+#### b)
+
+With the frequentist approach we simply need to divide the number of detection failures with the total number of trials.
+
+```{r}
+
+p_hat = 6/75
+p_hat
+```
+
+#### c)
+
+we use the beta distribution:
+
+```{r}
+
+p = seq(from =  0.01 , by = 0.001 , length.out = 1000)
+m = 0.15
+sigma = 0.14 
+
+a = m^2 * (1 - m)/sigma ^ 2 - m
+b = -(1 - 1/m) * a
+
+p_post = dbeta(p , a + 6, b + 69)
+p_mean = 0.001 * sum(p * p_post)
+p_sigma = sqrt(0.001 * sum(p^2 * p_post) - p_mean ^2)
+
+
+plot(p , p_post , type = 'l' , col = 'blue'  , lwd = '1')
+abline(v = p_mean, lty = "dashed", col = "red")
+abline(v = p_mean + p_sigma , lty = "dashed", col = "red")
+abline(v = p_mean - p_sigma, lty = "dashed", col = "red")
+
+```
+
+#### d)
+
+The test hypothesis is that "The new method is better" which is equivalent to "p \< 0.15" therefore the null hypothesis is that "The new method is not better" which is equivalent to saying " p \> 0.15". Therefore we evaluate the 1 - the cumulative posterior up to p = 0.15 which is the p-value.
+
+```{r}
+
+1 - pbeta(0.15, a + 6 , b + 69  )
+```
+
+So the p-value is smaller than the significance value, therefore the null hypothesis is rejected, so we conclude that the new method is better.
+
+#### e)
+
+In the same way as the previous part, we assume p0 = 0.15 and we look at y greater than or equal to 6. If the p-value is smaller than 0.05, we conclude that the test hypothesis : "The new method is better than the old one" is accepted.
+
+```{r}
+
+pbinom(6 , 75 , 0.15)
+```
+
+We see that the p-value is greater than the significance value, therefore we conclude that the null hypothesis is accepted: "The new method is no better"
+
+So the Bayesian and frequentist approaches do not give the same result.
+
+### Exercise 3:
+
+The only difference in this case is that we will need to assume a prior for the $\beta$ (the distance of the lighthouse from the shore) in addition to $\alpha$ (the position of the lighthouse on the shore)
+
+We start by defining the log likelihood function:
+
+```{r}
+
+p.loglike = function(a,b,data){
+  
+  logL = 0.0 
+  
+  for (x in data) {
+    logL = logL - log(b^2 + (x - a) ^ 2) + log(b)
+  }
+  return (logL)
+}
+
+p.log.like = function(a, b, data) {
+  logL = matrix(0, nrow = length(a), ncol = length(b))  # Matrix to store log-likelihood values
+  
+  for (i in 1:length(a)) {
+    for (j in 1:length(b)) {
+      logL[i, j] = p.loglike(a[i], b[j], data)  # Calculate log-likelihood for each combination
+    }
+  }
+  
+  return(logL)
+}
+
+```
+
+We initialize some variables:
+
+```{r}
+
+n.sample.x = 300
+n.sample.y = 200
+
+x.min = 0 ; x.max = 3 
+y.min = 1 ; y.max = 3
+h.x = (x.max - x.min)/n.sample.x 
+h.y = (y.max - y.min)/n.sample.y
+
+alpha = seq(from = x.min , by = h.x , length.out = n.sample.x + 1)
+betha = seq(from = y.min , by = h.y , length.out = n.sample.y + 1)
+```
+
+At this point we need also to create some observation data. By assuming a uniform azimuth distribution for the light, we know that the x position of the detected light on the shore follows a Cauchy distribution with a given $\alpha$ and $\beta$ , we assume the true values of $\alpha$ and $\beta$ to be 2 and 1.5 kilometer.
+
+```{r}
+
+a = 2
+b = 1.5
+
+n = 200
+
+data = rcauchy(n, location = a , scale = b)
+```
+
+Now we can calculate the logliklihood function and find the maximum:
+
+```{r}
+
+p.log.star = p.log.like(alpha , betha , data)
+```
+
+```{r}
+
+index.max = which(p.log.star == max(p.log.star), arr.ind = TRUE)
+print(alpha[index.max[1]])
+print(betha[index.max[2]])
+```
+
+We can now get the exponential and normalize the posterior:
+
+```{r}
+
+p.post.star = exp(p.log.star)
+p.post = p.post.star/(sum(p.post.star))
+
+sum(p.post)
+```
+
+```{r}
+
+library(plotly)
+
+# Assuming you have the 'result' matrix from p.log.like_all_combinations
+result <- p.post  # Replace with your 'result' matrix
+
+
+# Create the wireframe plot
+plot_ly() %>%
+  add_trace(
+    x = betha,
+    y = alpha,
+    z = result,
+    type = "surface",
+    colorscale = "Viridis",
+    showscale = TRUE
+  ) %>%
+  layout(
+    scene = list(
+      xaxis = list(title = "Beta"),
+      yaxis = list(title = "Alpha"),
+      zaxis = list(title = "Posterior")
+    )
+  )
+
+```
+
+### Exercise 4:
+
+We start by defining the generative model:
+
+```{r}
+
+# - Generative model
+signal = function(x, a, b, x0, w, t) {t * (a*exp(-(x-x0)^2/(2*w^2)) + b)}
+```
+
+Next we define model parameters:
+
+```{r}
+
+# Define model parameters
+x0 = 0 # Signal peak
+w = c(0.1, 0.25, 1, 2, 3) # Signal width
+A.true = 2 # Signal amplitude
+B.true = 1 # Background amplitude
+Delta.t = 5 # Exposure time
+```
+
+Next we generate the observed data for different values of w:
+
+```{r}
+
+set.seed(205)
+xdat = seq(from=-7*w[1] , to=7*w[1] , by=0.5*w[1])
+s.true = signal(xdat , A.true , B.true , x0, w[1], Delta.t)
+ddat = rpois(length(s.true), s.true)
+```
+
+Next we can create a grid for calculating the posterior:
+
+```{r}
+
+# - Sampling grid for computing posterior
+alim = c(0.0, 4.0)
+blim = c(0.5, 1.5)
+Nsamp = 100
+uniGrid = seq(from=1/(2*Nsamp), to=1-1/(2*Nsamp), by=1/Nsamp)
+delta_a = diff(alim)/Nsamp
+delta_b = diff(blim)/Nsamp
+a = alim[1] + diff(alim)*uniGrid
+b = blim[1] + diff(blim)*uniGrid
+```
+
+```{r}
+
+# Log posterior
+log.post = function(d, x, a, b, x0, w, t) {
+if(a<0 || b <0) {return(-Inf)} # the effect of the prior
+sum(dpois(d, lambda=signal(x, a, b, x0, w, t), log=TRUE))
+}
+# Compute log unnormalized posterior , z = ln Pˆ*(a,b|D), on a regular grid
+z = matrix(data=NA, nrow=length(a), ncol=length(b))
+for(j in 1:length(a)) {
+for(k in 1:length(b)) {
+z[j,k] = log.post(ddat , xdat , a[j], b[k], x0, w[1], Delta.t)
+}
+}
+z = z - max(z) # set maximum to zero
+```
+
+Finally we plot the result:
+
+```{r}
+
+# Plot unnormalized 2D posterior as contours.
+contour(a, b, exp(z),
+nlevels = 5,
+labcex = 0.5,
+lwd = 2,
+xlab="amplitude , A",
+ylab="background , B")
+abline(v=2,h=1,col="grey")
+```
+
+#### (a)
+
+Now we will loop over the different values of w:
+
+```{r}
+
+for (i in seq_along(w)) {
+  
+xdat = seq(from=-7*w[i] , to=7*w[i] , by=0.5*w[i])
+s.true = signal(xdat , A.true , B.true , x0, w[i], Delta.t)
+ddat = rpois(length(s.true), s.true)
+
+z = matrix(data=NA, nrow=length(a), ncol=length(b))
+for(j in 1:length(a)) {
+for(k in 1:length(b)) {
+z[j,k] = log.post(ddat , xdat , a[j], b[k], x0, w[i], Delta.t)
+}
+}
+z = z - max(z) # set maximum to zero
+
+contour(a, b, exp(z),
+nlevels = 5,
+labcex = 0.5,
+lwd = 2,
+main = paste("w =" , w[i]),
+xlab="amplitude , A",
+ylab="background , B")
+abline(v=2,h=1,col="grey")
+}
+```
+
+As we see the peak value of the posterior changes as we change the resolution. By decreasing the w, we are increasing the sampling resolution with the cost of decreasing the sampling range. The results show that the two factors: sampling range and sampling resolution have almost the same effect on the value predicted for A and B.
+
+#### (b)
+
+Let's change the ratio of A/B to 3:
+
+```{r}
+
+# Define model parameters
+x0 = 0 # Signal peak
+w = 0.1 # Signal width
+A.true = 3 # Signal amplitude
+B.true = 1 # Background amplitude
+Delta.t = 5 # Exposure time
+set.seed(205)
+xdat = seq(from=-7*w , to=7*w , by=0.5*w)
+s.true = signal(xdat , A.true , B.true , x0, w, Delta.t)
+ddat = rpois(length(s.true), s.true)
+# Log posterior
+log.post = function(d, x, a, b, x0, w, t) {
+if(a<0 || b <0) {return(-Inf)} # the effect of the prior
+sum(dpois(d, lambda=signal(x, a, b, x0, w, t), log=TRUE))
+}
+# Compute log unnormalized posterior , z = ln Pˆ*(a,b|D), on a regular grid
+z = matrix(data=NA, nrow=length(a), ncol=length(b))
+for(j in 1:length(a)) {
+for(k in 1:length(b)) {
+z[j,k] = log.post(ddat , xdat , a[j], b[k], x0, w, Delta.t)
+}
+}
+z = z - max(z) # set maximum to zero
+# Plot unnormalized 2D posterior as contours.
+contour(a, b, exp(z),
+nlevels = 5,
+labcex = 0.5,
+lwd = 2,
+xlab="amplitude , A",
+ylab="background , B")
+abline(v=2,h=1,col="grey")
+```

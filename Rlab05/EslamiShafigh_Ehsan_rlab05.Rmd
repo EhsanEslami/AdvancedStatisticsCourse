@@ -1,0 +1,461 @@
+---
+title: "EslamiShafigh_Ehsan_rlab05"
+author: "Ehsan Eslmai Shafigh"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment 5
+
+### Exercise 1
+
+We calculate a different posterior for each of the two sets of observations.\
+
+#### (a.1)
+
+Assuming a uniform prior:
+
+```{r}
+
+sigma_y = 65 * 1 + 22 * 2 + 3 * 3 +  1 * 4
+n = 109 + 65 + 22 + 3 + 1
+n.sample = 1000
+delta.lambda = 1/n.sample
+
+alpha = 1 + sigma_y
+mu = n
+lambda = seq(from = 0 , by = delta.lambda , length.out = n.sample )
+
+lambda_posterior = dgamma(lambda , alpha , mu)
+
+
+mean = delta.lambda * sum(lambda * lambda_posterior)
+variance = delta.lambda * sum(lambda ^ 2 * lambda_posterior) - mean ^ 2
+median = qgamma(0.5 , alpha , mu )
+ci = qgamma(c(0.025 , 0.975) , alpha , mu)
+
+print(mean)
+print(variance)
+print(median)
+print(ci)
+```
+
+```{r}
+
+# Plot the lambda and lambda_posterior
+plot(lambda, lambda_posterior, type = 'l', col = 'blue', xlab = "Lambda", ylab = "Posterior Density", main = "Posterior Distribution of Lambda")
+
+# Add vertical dashed lines for the confidence interval
+abline(v = ci[1], lty = 'dashed', col = 'red')
+abline(v = ci[2], lty = 'dashed', col = 'red')
+
+
+```
+
+#### (b.1)
+
+We repeat the same task for Jeffery's prior:
+
+```{r}
+
+sigma_y = 65 * 1 + 22 * 2 + 3 * 3 +  1 * 4
+n = 109 + 65 + 22 + 3 + 1
+n.sample = 1000
+delta.lambda = 1/n.sample
+
+alpha = 0.5 + sigma_y
+mu = n
+lambda = seq(from = 0 , by = delta.lambda , length.out = n.sample )
+
+lambda_posterior = dgamma(lambda , alpha , mu)
+
+
+mean = delta.lambda * sum(lambda * lambda_posterior)
+variance = delta.lambda * sum(lambda ^ 2 * lambda_posterior) - mean ^ 2
+median = qgamma(0.5 , alpha , mu )
+ci = qgamma(c(0.025 , 0.975) , alpha , mu)
+
+print(mean)
+print(variance)
+print(median)
+print(ci)
+
+```
+
+```{r}
+
+# Plot the lambda and lambda_posterior
+plot(lambda, lambda_posterior, type = 'l', col = 'blue', xlab = "Lambda", ylab = "Posterior Density", main = "Posterior Distribution of Lambda")
+
+# Add vertical dashed lines for the confidence interval
+abline(v = ci[1], lty = 'dashed', col = 'red')
+abline(v = ci[2], lty = 'dashed', col = 'red')
+
+
+```
+
+#### (a.2)
+
+We can repeat the same for the second set of observations:
+
+```{r}
+
+sigma_y = 91 * 1 + 32 * 2 + 11 * 3 + 2 * 4
+n = 144 + 91 + 32 + 11 + 2
+n.sample = 1000
+delta.lambda = 1/n.sample
+
+alpha = 1 + sigma_y
+mu = n
+lambda = seq(from = 0 , by = delta.lambda , length.out = n.sample )
+
+lambda_posterior = dgamma(lambda , alpha , mu)
+
+
+mean = delta.lambda * sum(lambda * lambda_posterior)
+variance = delta.lambda * sum(lambda ^ 2 * lambda_posterior) - mean ^ 2
+median = qgamma(0.5 , alpha , mu )
+ci = qgamma(c(0.025 , 0.975) , alpha , mu)
+
+print(mean)
+print(variance)
+print(median)
+print(ci)
+```
+
+```{r}
+
+# Create the plot
+plot(lambda, lambda_posterior, type = 'l', col = 'blue', xlab = "Lambda", ylab = "Posterior Density")
+
+# Add vertical dashed lines for the confidence interval
+abline(v = ci[1], lty = 'dashed', col = 'red')
+abline(v = ci[2], lty = 'dashed', col = 'red')
+
+
+```
+
+#### (b.2)
+
+```{r}
+
+sigma_y = 91 * 1 + 32 * 2 + 11 * 3 + 2 * 4
+n = 144 + 91 + 32 + 11 + 2
+n.sample = 1000
+delta.lambda = 1/n.sample
+
+alpha = 0.5 + sigma_y
+mu = n
+lambda = seq(from = 0 , by = delta.lambda , length.out = n.sample )
+
+lambda_posterior = dgamma(lambda , alpha , mu)
+
+
+mean = delta.lambda * sum(lambda * lambda_posterior)
+variance = delta.lambda * sum(lambda ^ 2 * lambda_posterior) - mean ^ 2
+median = qgamma(0.5 , alpha , mu )
+ci = qgamma(c(0.025 , 0.975) , alpha , mu)
+
+print(mean)
+print(variance)
+print(median)
+print(ci)
+```
+
+```{r}
+
+# Create the plot
+plot(lambda, lambda_posterior, type = 'l', col = 'blue', xlab = "Lambda", ylab = "Posterior Density")
+
+# Add vertical dashed lines for the confidence interval
+abline(v = ci[1], lty = 'dashed', col = 'red')
+abline(v = ci[2], lty = 'dashed', col = 'red')
+
+
+```
+
+### Exercise 2
+
+I use the code written for the MCMC algorithm in one of the slides:\
+\
+
+```{r}
+
+# Parameters:
+# func : a function whose first argument is a real vector of parameters
+# func returns a log10 of the likelihood function
+# theta.init : the initial value of the Markov Chain (and of func)
+# n.sample: number of required samples
+# sigma : standar deviation of the gaussian MCMC sampling pdf
+
+metropolis.1dim <- function(func , theta.init , n.sample , sigma) {
+theta.cur <- theta.init
+func.Cur <- func(theta.cur)
+func.Samp <- matrix(data=NA, nrow=n.sample , ncol=2+1)
+n.accept <- 0
+rate.accept <- 0.0
+
+for (n in 1:n.sample) {
+theta.prop <- rnorm(n=1, mean = theta.cur, sigma)
+func.Prop <- func(theta.prop)
+logMR <- func.Prop - func.Cur # Log10 of the Metropolis ratio
+if ( logMR >=0 || logMR >log10(runif(1)) ) {
+theta.cur <- theta.prop
+func.Cur <- func.Prop
+n.accept <- n.accept + 1
+}
+func.Samp[n, 1] <- func.Cur
+func.Samp[n, 2] <- theta.cur
+func.Samp[n, 3] <- n
+}
+return(func.Samp)
+}
+```
+
+Now we need to define the posterior function we are going to sample from:
+
+```{r}
+
+testfunc <- function(lambda) {
+return(dgamma(lambda , shape = alpha , rate = mu))}
+
+testfunc.metropolis <- function(lambda) {
+return(log10(testfunc(lambda)))}
+```
+
+Now we are ready to sample from the desired posterior:
+
+```{r}
+
+lambda.init <- 0.1
+sample.sig <- 0.1
+n.sample <- 10^5
+demo <- TRUE
+
+set.seed(20190513)
+chain <- metropolis.1dim(func=testfunc.metropolis ,
+theta.init = lambda.init ,
+n.sample = n.sample ,
+sigma = sample.sig)
+```
+
+```{r}
+
+mcmc.data = chain[1000:nrow(chain) , 2]
+  
+hist(mcmc.data , breaks = 1000 , freq = F , main = 'Histogram of the Samples'  , xlab = 'sample values')
+```
+
+```{r}
+
+mean = mean(mcmc.data)
+variance = mean(mcmc.data ^ 2)  - mean ^ 2
+median = quantile(mcmc.data , 0.5)
+ci = quantile(mcmc.data , c(0.025 , 0.975))
+
+print(mean)
+print(variance)
+print(median)
+print(ci)
+```
+
+```{r}
+
+plot(chain[,3] , chain[,2] , type ='l' , ylim = c(0.4 , 1) , xlab = 'iteration' , ylab = 'lambda', xlim = c(0 , 1000) , main = 'MCMC First 1000 Iterations')
+```
+
+### Exercise 3
+
+#### (a)
+
+The unbiased frequentist estimator for a Bernoulli process is simply:
+
+```{r}
+
+y = 11
+n = 116 
+p.hat = y/n
+p.hat
+```
+
+#### (b)
+
+```{r}
+p <- seq(from = 0, by = 0.001, length.out = 1000)
+post.p <- dbeta(p, 1 + y, n - y + 10)
+
+# Create the plot
+plot(p, post.p, type = 'l', xlab = "p", ylab = "Posterior Density",
+     main = "Posterior Distribution of p", col = "blue", lwd = 2)
+
+# Add grid lines
+grid()
+
+
+# Adjust the plot margins
+par(mar = c(5, 5, 4, 2) + 0.1)
+
+
+```
+
+#### (c)
+
+```{r}
+
+mean = 0.001 * sum(post.p * p)
+variance = 0.001 * sum(p ^ 2 * post.p) - mean ^ 2
+
+sigma = sqrt(variance)
+
+print(mean)
+print(c(mean - 2 * sigma , mean + 2 * sigma))
+```
+
+So the mean of the posterior is considered as the Bayesian estimator for p, and the 95% credibility area is considered as the area 2\*$\sigma$ around the mean.
+
+#### (d)
+
+For the frequentist approach, we need to assume the null hypothesis to be true, and using the binomial distribution, find the corresponding p-value :
+
+```{r}
+
+p.value = pbinom(11 , n , 0.1 , lower.tail = T) + pbinom(105 , n , 0.1 , lower.tail = F)
+p.value
+```
+
+As we see the p-value is much higher than 0.05, so the null hypothesis is not rejected.
+
+For the Bayesian approach, we can use the result of the posterior from the last section. p = 0.1 is within the 95% credibility interval, therefore the null hypothesis is not rejected.
+
+#### (e)
+
+We need to to the same task with a new value of y:
+
+```{r}
+
+y = 9
+n = 165
+p.hat = y/n
+p.hat
+```
+
+#### (f)
+
+First let's do the Beta prior first:
+
+```{r}
+
+p <- seq(from = 0, by = 0.001, length.out = 1000)
+post.p <- dbeta(p, 1 + y, n - y + 10)
+
+# Create the plot
+plot(p, post.p, type = 'l', col = 'blue', lwd = 2, xlab = 'p', ylab = 'Posterior Density',
+     main = 'Posterior Distribution of p')
+
+# Add grid lines
+grid()
+
+
+# Adjust the plot margins
+par(mar = c(5, 5, 4, 2) + 0.1)
+
+
+```
+
+```{r}
+
+mean = 0.001 * sum(post.p * p)
+variance = 0.001 * sum(p ^ 2 * post.p) - mean ^ 2
+
+sigma = sqrt(variance)
+
+print(mean)
+print(c(mean - 2 * sigma , mean + 2 * sigma))
+```
+
+Assuming the previous measurement as a prior we get:\
+\
+
+```{r}
+
+p <- seq(from = 0, by = 0.001, length.out = 1000)
+p.prior <- dbeta(p, 1 + 11, 116 - 11 + 10)
+post.p <- dbeta(p, 1 + 11 + 9, 165 - 9 + 116 - 11 + 10)
+
+# Create the plot
+plot(p, post.p, type = 'l', col = 'blue', lwd = 2, xlab = 'p', ylab = 'Posterior Density',
+     main = 'Posterior Distribution of p')
+
+# Add grid lines
+grid()
+
+
+# Adjust the plot margins
+par(mar = c(5, 5, 4, 2) + 0.1)
+
+```
+
+#### (g)
+
+```{r}
+
+mean = 0.001 * sum(post.p * p)
+variance = 0.001 * sum(p ^ 2 * post.p) - mean ^ 2
+
+sigma = sqrt(variance)
+
+print(mean)
+print(c(mean - 2 * sigma , mean + 2 * sigma))
+```
+
+#### (h)
+
+Frequentist approach:
+
+```{r}
+
+p.value = pbinom(9 , n , 0.1 , lower.tail = T) + pbinom(107 , n , 0.1 , lower.tail = F)
+p.value
+```
+
+We see that the p-value is smaller than 0.05 and therefore the null hypothesis is rejected.
+
+Bayesian approach: The p = 0.1 is almost inside the 95% credibility interval.
+
+### Exercise 4
+
+We start by defining the model:
+
+```{r}
+
+library(rjags)
+library(coda)
+
+data <- list(n = 116, y = 11)
+
+model <- jags.model("model.txt", data = data)
+samples <- coda.samples(model, variable.names = "p", n.iter = 10000)
+
+summary(samples)
+```
+
+```{r}
+p.df = as.data.frame(as.mcmc(samples))
+hist(p.df$p , breaks = 100 , freq = F , main = 'Histogram of the Samples'  , xlab = 'p' )
+
+```
+
+```{r}
+
+mean = mean(p.df$p)
+std = sd(p.df$p)
+ci = c(mean - 2 *std , mean + 2 * std)
+
+print(mean)
+print(std)
+print(ci)
+```
